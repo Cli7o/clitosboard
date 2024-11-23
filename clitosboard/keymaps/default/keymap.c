@@ -5,11 +5,11 @@
 int layer = 0;
 char layer_str[16];
 int capa = 0;
-int seleccion = 0;
+//int seleccion = 0;
 //int accion = 0;
 
-int seleccion_minima = 0;
-int seleccion_maxima = 2;
+int capa_minima      = 0;
+int capa_maxima = 2;
 
 #define FRAME_DURATION  333
 
@@ -484,7 +484,7 @@ bool oled_task_user(void) {
     
     switch (capa) {
 
-        case 0:
+        case 1:
             //oled_write_ln_P(led_state.caps_lock ? PSTR("WPM") : PSTR("wpm"), false);
                 if (led_state.caps_lock) {
                     snprintf(wpm_str, sizeof(wpm_str), "WPM: %d", wpm);
@@ -495,7 +495,7 @@ bool oled_task_user(void) {
             oled_write(wpm_str, false);
 
             oled_set_cursor(20, 0);
-            snprintf(layer_str, sizeof(layer_str), "%d", seleccion);
+            snprintf(layer_str, sizeof(layer_str), "%d", capa);
             oled_write(layer_str, false);
             oled_set_cursor(0, 0);
 
@@ -504,6 +504,11 @@ bool oled_task_user(void) {
 
         break;
 
+        case 0:
+        oled_clear();
+            //show clock
+
+        break;
        /* case 0: // perfil de menu principal
             if (get_highest_layer(layer_state) == 0) {
                 oled_write_ln("MENU", false);
@@ -610,10 +615,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (get_highest_layer(layer_state) == 1) {              
         if (keycode == KC_UP && record->event.pressed) { 
-            seleccion++;
+            capa++;
         }
         if (keycode == KC_DOWN && record->event.pressed) {
-            seleccion--;
+            capa--;
         }
         /*
         if (keycode == KC_LEFT && record->event.pressed) {
@@ -630,10 +635,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }*/
     }
 
-    if (seleccion <= seleccion_minima) {
-        seleccion = seleccion_minima;
-    } else if (seleccion >= seleccion_maxima) {
-        seleccion = seleccion_maxima;
+    if (capa <= capa_minima) {
+        capa = capa_minima;
+    } else if (capa >= capa_maxima) {
+        capa = capa_maxima;
     }
     
     return true; // Permitir que otras acciones de la tecla se procesen
