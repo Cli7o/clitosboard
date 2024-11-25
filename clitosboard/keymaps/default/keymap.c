@@ -1,6 +1,7 @@
-//POR ALGÚN  MOTIVO MI PANTALLA ACABA DE DEJAR DE MOSTRAR COSAS
+
 
 #include QMK_KEYBOARD_H
+#include "rtc.h"
 
 int layer = 0;
 char layer_str[16];
@@ -19,7 +20,12 @@ bool     animacion     = false;
 
 char    wpm_str[16];
 
-
+void keyboard_post_init_user(void) {
+    rtc_init();
+}
+void housekeeping_task_user(void) {
+    rtc_task();
+}
 
 
 //imagenes
@@ -484,14 +490,42 @@ bool oled_task_user(void) {
     
     switch (capa) {
 
-        case 1:
-            //oled_write_ln_P(led_state.caps_lock ? PSTR("WPM") : PSTR("wpm"), false);
-                if (led_state.caps_lock) {
-                    snprintf(wpm_str, sizeof(wpm_str), "WPM: %d", wpm);
-                } else {
-                    snprintf(wpm_str, sizeof(wpm_str), "wpm: %d", wpm);
-                }
+        case 0:
+                oled_write(rtc_read_time_str(), false);
+
+                oled_set_cursor(20, 0);
+                snprintf(layer_str, sizeof(layer_str), "%d", capa);
+                oled_write(layer_str, false);
+                oled_set_cursor(0, 0);
+
+                render_animation();
             
+            
+
+        break;
+
+        case 1:
+            oled_write(rtc_read_date_str(), false);
+
+            oled_set_cursor(20, 0);
+            snprintf(layer_str, sizeof(layer_str), "%d", capa);
+            oled_write(layer_str, false);
+            oled_set_cursor(0, 0);
+
+            render_animation();
+
+        break;
+
+        case 2:
+            
+
+            // oled_write_ln_P(led_state.caps_lock ? PSTR("WPM") : PSTR("wpm"), false);
+            if (led_state.caps_lock) {
+                snprintf(wpm_str, sizeof(wpm_str), "WPM: %d", wpm);
+            } else {
+                snprintf(wpm_str, sizeof(wpm_str), "wpm: %d", wpm);
+            }
+
             oled_write(wpm_str, false);
 
             oled_set_cursor(20, 0);
@@ -500,14 +534,6 @@ bool oled_task_user(void) {
             oled_set_cursor(0, 0);
 
             render_animation();
-            
-
-        break;
-
-        case 0:
-        oled_clear();
-            //show clock
-
         break;
        /* case 0: // perfil de menu principal
             if (get_highest_layer(layer_state) == 0) {

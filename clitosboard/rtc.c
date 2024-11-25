@@ -8,7 +8,6 @@
 #include "print.h"
 #include "timer.h"
 #include "progmem.h"
-#include "drashna_runtime.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -42,6 +41,7 @@ void display_menu_set_dirty(void);
 #    define RTC_READ_INTERVAL 250
 #endif
 
+static int8_t timezone = 3;
 static rtc_time_t rtc_time;
 static uint16_t   last_rtc_read   = 0;
 static bool       rtc_initialized = false, rtc_connected = false;
@@ -201,18 +201,18 @@ void rtc_set_time_split(rtc_time_t time, bool is_connected) {
 
 static void rtc_check_dst_format(rtc_time_t *time) {
 #ifdef DS1307_RTC_DRIVER_ENABLE
-    time->is_dst = userspace_config.rtc.is_dst;
+    //time->is_dst = userspace_config.rtc.is_dst;
 #endif // DS1307_RTC_DRIVER_ENABLE
 #ifdef DS3231_RTC_DRIVER_ENABLE
-    time->is_dst = userspace_config.rtc.is_dst;
+    //time->is_dst = userspace_config.rtc.is_dst;
 #endif // DS3231_RTC_DRIVER_ENABLE
 #ifdef PCF8523_RTC_DRIVER_ENABLE
-    time->is_dst = userspace_config.rtc.is_dst;
+    //time->is_dst = userspace_config.rtc.is_dst;
 #endif // PCF8523_RTC_DRIVER_ENABLE
 #ifdef VENDOR_RTC_DRIVER_ENABLE
-    time->format = userspace_config.rtc.format_24h;
+    //time->format = userspace_config.rtc.format_24h;
 #endif // VENDOR_RTC_DRIVER_ENABLE
-    time->timezone = userspace_config.rtc.timezone;
+    time->timezone = timezone;
 }
 
 void rtc_init(void) {
@@ -273,7 +273,7 @@ void rtc_task(void) {
  */
 char *rtc_read_date_str(void) {
     static char date_str[11] = {0};
-    snprintf_nowarn(date_str, sizeof(date_str), "%02d/%02d/%04d", rtc_time.month, rtc_time.date, rtc_time.year);
+    snprintf_nowarn(date_str, sizeof(date_str), "%02d/%02d/%04d", rtc_time.date, rtc_time.month, rtc_time.year);
     return date_str;
 }
 
@@ -373,10 +373,10 @@ __attribute__((weak)) uint32_t get_fattime(void) {
 void rtc_set_time(rtc_time_t time) {
     time.day_of_the_week            = (rtc_time_day_of_the_week_t)day_of_the_week(time);
     time.unixtime                   = (uint32_t)convert_to_unixtime(time);
-    userspace_config.rtc.timezone   = time.timezone;
-    userspace_config.rtc.is_dst     = time.is_dst;
-    userspace_config.rtc.format_24h = time.format;
-    eeconfig_update_user_datablock(&userspace_config);
+    timezone   = time.timezone;
+    //userspace_config.rtc.is_dst     = time.is_dst;
+    //userspace_config.rtc.format_24h = time.format;
+    //eeconfig_update_user_datablock(&userspace_config);
 
 #ifdef DS3231_RTC_DRIVER_ENABLE
     ds3231_set_time(time);
