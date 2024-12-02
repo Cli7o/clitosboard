@@ -1,3 +1,8 @@
+/*
+Víctor Besa Santa Catalina
+explicación del código:
+codigo para mostrar por una pantalla OLED, una animación, la hora, la fecha, las palabras por minuto, y en que capa estás, la matriz de switches tiene 2 capas
+*/ 
 
 
 #include QMK_KEYBOARD_H
@@ -19,6 +24,12 @@ uint8_t  current_frame = 0;
 bool     animacion     = false;
 
 char    wpm_str[16];
+
+enum custom_keycodes {
+    DESPEDIDA,
+};
+
+
 
 void keyboard_post_init_user(void) {
     rtc_init();
@@ -633,6 +644,18 @@ bool oled_task_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
+    //para las macros
+    switch (keycode) {
+        case DESPEDIDA:
+        if (record->event.pressed) { //si se presiona la tecla
+                SEND_STRING("MUCHAS GRACIAS POR ESCUCHAR \nNO OLVIDEIS PREGUNTAR DUDAS <3");
+        }
+        else {  //si se suelta
+
+        }
+        break;
+    }
+
     if (record->event.pressed) {
         animacion = true;
     } else {
@@ -686,7 +709,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [1] = LAYOUT(
 
-        KC_ESCAPE,   KC_NO,   KC_F13,KC_F14,  KC_F15,KC_F16,KC_NO,    KC_F17,KC_F18,KC_F19,   KC_F20,  KC_F21,   KC_F22,      KC_F23,      KC_F24,    KC_NO,      KC_NO,   KC_NO,
+        DESPEDIDA,   KC_NO,   KC_F13,KC_F14,  KC_F15,KC_F16,KC_NO,    KC_F17,KC_F18,KC_F19,   KC_F20,  KC_F21,   KC_F22,      KC_F23,      KC_F24,    KC_NO,      KC_NO,   KC_NO,
         KC_GRAVE,    KC_1,    KC_2,  KC_3,    KC_4,  KC_5,  KC_6,     KC_7,  KC_8,  KC_9,     KC_0,    KC_MINUS, KC_EQUAL,    KC_NO,       KC_BSPC,   KC_DELETE,  KC_HOME, KC_PGUP,
         KC_TAB,      KC_NO,   KC_Q,  KC_W,    KC_E,  KC_R,  KC_T,     KC_Y,  KC_U,  KC_I,     KC_O,    KC_P,     KC_LBRC,     KC_RBRC,     KC_ENTER,  KC_PSCR,    KC_END,  KC_PGDN,
         KC_CAPS,     KC_NO,   KC_A,  KC_S,    KC_D,  KC_F,  KC_G,     KC_H,  KC_J,  KC_K,     KC_L,    KC_SCLN,  KC_QUOT,     KC_BSLS,     KC_NO,     KC_NO,      KC_NO,   KC_NO,
